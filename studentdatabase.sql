@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 4.9.1
+-- version 4.8.5
 -- https://www.phpmyadmin.net/
 --
--- Host: localhost
--- Generation Time: Oct 28, 2019 at 02:01 AM
--- Server version: 10.4.8-MariaDB
--- PHP Version: 7.3.10
+-- Host: 127.0.0.1:3306
+-- Generation Time: Oct 28, 2019 at 01:19 AM
+-- Server version: 5.7.26
+-- PHP Version: 7.2.18
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET AUTOCOMMIT = 0;
@@ -19,7 +19,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `studentDataBase`
+-- Database: `studentdatabase`
 --
 
 -- --------------------------------------------------------
@@ -28,11 +28,13 @@ SET time_zone = "+00:00";
 -- Table structure for table `students`
 --
 
-CREATE TABLE `students` (
+DROP TABLE IF EXISTS `students`;
+CREATE TABLE IF NOT EXISTS `students` (
   `SID` int(5) NOT NULL,
   `STUD_ID` int(8) NOT NULL,
   `FNAME` varchar(20) COLLATE sjis_bin NOT NULL,
-  `SNAME` varchar(20) COLLATE sjis_bin NOT NULL
+  `SNAME` varchar(20) COLLATE sjis_bin NOT NULL,
+  PRIMARY KEY (`SID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=sjis COLLATE=sjis_bin;
 
 --
@@ -53,9 +55,11 @@ INSERT INTO `students` (`SID`, `STUD_ID`, `FNAME`, `SNAME`) VALUES
 -- Table structure for table `users`
 --
 
-CREATE TABLE `users` (
+DROP TABLE IF EXISTS `users`;
+CREATE TABLE IF NOT EXISTS `users` (
   `UID` int(5) NOT NULL,
-  `UNAME` varchar(20) COLLATE sjis_bin NOT NULL
+  `UNAME` varchar(20) COLLATE sjis_bin NOT NULL,
+  PRIMARY KEY (`UID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=sjis COLLATE=sjis_bin;
 
 --
@@ -63,23 +67,8 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`UID`, `UNAME`) VALUES
-(1234, 'Daemon');
-
---
--- Indexes for dumped tables
---
-
---
--- Indexes for table `students`
---
-ALTER TABLE `students`
-  ADD PRIMARY KEY (`SID`);
-
---
--- Indexes for table `users`
---
-ALTER TABLE `users`
-  ADD PRIMARY KEY (`UID`);
+(1234, 'Daemon'),
+(55555, 'Jon');
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
