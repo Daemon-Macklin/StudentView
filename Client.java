@@ -270,7 +270,9 @@ public class Client {
                 displayMessage("Error Getting all User Data");
             }
 
-        } catch (Exception e){
+        } catch (java.net.SocketException e){
+            displayMessage("Connection to Database Lost");
+        }catch (Exception e){
             System.out.println(e);
             displayMessage("Error Getting User Data");
         }
@@ -338,7 +340,7 @@ public class Client {
                         // Else the user can login
                         canLogin = true;
                     }
-                } catch (Exception e) {
+                }catch (Exception e) {
                     System.out.println(e);
                 }
             }
@@ -385,6 +387,8 @@ public class Client {
             serverViewContents.setVisible(false);
             loginContents.setVisible(true);
 
+        } catch (java.net.SocketException e){
+            displayMessage("Connection to Database Lost");
         } catch (IOException e){
             System.out.println(e);
         }
@@ -396,7 +400,7 @@ public class Client {
      */
     private Boolean connectToServer() {
 
-        try{
+        try {
             // Create a new Socket at 127.0.0.1(localhost) using port 8000 to connect to our server
             socket = new Socket("localhost", 8000);
             fromServer = new DataInputStream(socket.getInputStream());
@@ -463,6 +467,8 @@ public class Client {
                     displayMessage("Search Failed");
                 }
 
+            } catch (java.net.SocketException e){
+                displayMessage("Connection to Database Lost");
             } catch (Exception e){
                 System.out.println(e);
             }
