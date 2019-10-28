@@ -3,6 +3,8 @@
  */
 
 import javax.swing.*;
+import javax.swing.plaf.basic.DefaultMenuLayout;
+import java.awt.*;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -19,6 +21,8 @@ public class Server {
 
     // Text area to display incoming requests and out going responses
     private static JTextArea display = new JTextArea();
+    private static JButton clearDisplayButton = new JButton("Clear");
+    private static JButton stopServerButton = new JButton("Stop");
 
     public static void main(String[] args){
         Server server = new Server();
@@ -32,9 +36,29 @@ public class Server {
 
         // Show the gui
         JFrame frame = new JFrame("Student View Server");
-        frame.add(display);
+        JPanel displayPanel = new JPanel();
+        JPanel controlPanel = new JPanel();
+
+        displayPanel.setLayout(new BoxLayout(displayPanel,BoxLayout.PAGE_AXIS));
+        //display.setSize(new Dimension(800, 450));
+        displayPanel.add(display);
+        displayPanel.setSize(new Dimension( 800, 600));
+        displayPanel.add(Box.createVerticalStrut(10)); // Fixed width invisible separator.
+
+        controlPanel.add(clearDisplayButton);
+        controlPanel.add(stopServerButton);
+
+        // Setup Action listeners for button
+        // When the clear button is pressed clear the logs
+        clearDisplayButton.addActionListener(actionEvent -> display.setText(""));
+
+        // When the stop button is pressed exit the program
+        stopServerButton.addActionListener(actionEvent -> System.exit(1));
+
+        frame.add(displayPanel, BorderLayout.CENTER);
+        frame.add(controlPanel, BorderLayout.SOUTH);
         frame.pack();
-        frame.setSize(800, 400);
+        frame.setSize(800, 800);
         frame.setVisible(true);
 
         try {
@@ -56,7 +80,7 @@ public class Server {
                 newClient.start();
 
                 // Log the new thread
-                display.append("New Client at " + newSocket.toString() + "\n");
+                display.append(new Date() + "Request: New Client at " + newSocket.toString() + "\n");
             }
         } catch (Exception e){
             System.out.println(e);
@@ -118,7 +142,7 @@ public class Server {
 
                     // If it is login it is a login request
                     // Log the attempt
-                    writeMessage("Sign in request");
+                    writeMessage("Request", "Sign in request");
 
                     // Call the database login method with the user id
                     ResultSet loginResult = dbController.login(data[1]);
@@ -131,18 +155,18 @@ public class Server {
 
                         // Respond with the username - this means successful login - and log the sign in
                         response = loginResult.getString("UNAME");
-                        writeMessage(response + " signed in");
+                        writeMessage("Response",response + " signed in");
                     } else {
 
                         // If it is null there is no user with that UID
-                        writeMessage("Sign in Failed");
+                        writeMessage("Response", "Sign in Failed");
                         response = "Invalid UID";
                     }
 
                 } else if (data[0].equals("search")) {
 
                     // If it is search the client wants to search for users
-                    writeMessage("Searching Users");
+                    writeMessage("Request","Searching Users");
 
                     // Call the database search method with
                     ResultSet searchUsers = dbController.search(data[1], data[2]);
@@ -160,25 +184,25 @@ public class Server {
                             response = searchData;
 
                             // Log the search
-                            writeMessage("Retuning Search Data");
+                            writeMessage("Response", "Retuning Search Data");
 
                         } else{
 
                             // Else there was an error encoding the data, tell the client and log the error
                             response = "Error Searching User Data";
-                            writeMessage("Error Searching Data");
+                            writeMessage("Error", "Error Searching Data");
                         }
                     } else{
 
                         // Else there was no users, tell the client, log the search
                         response = "No User data";
-                        writeMessage("No User data");
+                        writeMessage("Response", "No User data");
                     }
 
                 } else if (data[0].equals("allUserData")) {
 
                     // If it is allUserData the client wants all of the user data
-                    writeMessage("Get all User data");
+                    writeMessage("Request", "Get all User data");
 
                     // Call the database get all usera function
                     ResultSet allUsers = dbController.getAllUserData();
@@ -194,24 +218,24 @@ public class Server {
 
                             // If it is not send the client the encoded data and log the search
                             response = userData;
-                            writeMessage("Returning User Data");
+                            writeMessage("Response", "Returning User Data");
                         } else {
 
                             // Else tell the client and log the error
                             response = "Error Getting User Data";
-                            writeMessage("Error Getting Data");
+                            writeMessage("Error","Error Getting Data");
                         }
                     } else {
 
                         // If it is null there is not data, tell the user and log
                         response = "No User data";
-                        writeMessage("No User data");
+                        writeMessage("Response", "No User data");
                     }
                 } else {
 
                     // Any other situation is a 404, tell the client and log the error
                     response = "404";
-                    writeMessage("404");
+                    writeMessage("Error","404");
                 }
 
                 // Send the response to the client
@@ -219,7 +243,7 @@ public class Server {
             }catch (IOException ex) {
 
                 // If the user disconnects log the disconnection and kill the thread
-                writeMessage("Connection Terminated");
+                writeMessage("Termination","Connection Terminated");
                 this.interrupt();
             }catch (Exception e) {
                 System.out.println(e);
@@ -228,8 +252,8 @@ public class Server {
     }
 
     // Method to write log messages with the date and source on it
-    private void writeMessage(String message) {
-        display.append(new Date() + ":" + message + ", From: "+ this.address + "\n");
+    private void writeMessage(String type, String message) {
+        display.append(type + ":" + new Date() + ":" + message + ", From: "+ this.address + "\n");
     }
 
     /**
